@@ -47,3 +47,22 @@ GLOBAL OPTIONS:
    --help, -h                  show help (default: false)
    --version, -v               print the version (default: false)
 ```
+
+## Example
+
+Simle conversion
+
+```
+$: printf "{\"name\":\"user\",\"id\":1}\n{\"name\":\"other\",\"id\":2}" | json_to_csv
+id,name
+1,user
+2,other
+```
+
+Count values
+
+```
+$: printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"de\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv -k country --no-header|sort|uniq -c
+      2 de
+      1 us
+```
