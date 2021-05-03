@@ -1,6 +1,7 @@
 package json_to_csv
 
 import (
+	"bufio"
 	"encoding/csv"
 	"errors"
 	"io"
@@ -39,5 +40,39 @@ func NewLimitCsvWriter(writer io.Writer, limit int, header bool) SimpleCsvWriter
 	return &limitWriter{
 		CSV:   csv.NewWriter(writer),
 		Limit: limit,
+	}
+}
+
+type stringWriter struct {
+	Writer *bufio.Writer
+	Limit  int
+	Count  int
+}
+
+func (w *stringWriter) Flush() error {
+	return w.Writer.Flush()
+}
+
+func (w *stringWriter) WriteString(s string) (int, error) {
+	written, err := w.Writer.WriteString(s)
+	if err != nil {
+		return written, err
+	}
+
+	w.Count += 1
+	if w.Count >= w.Limit {
+		return written, errors.New("maximum number of strings reached")
+	}
+	return written, nil
+}
+
+func NewLimitWriter(writer io.Writer, limit int) StringWriter {
+	if limit <= 0 {
+		return bufio.NewWriter(writer)
+	}
+
+	return &stringWriter{
+		Writer: bufio.NewWriter(writer),
+		Limit:  limit,
 	}
 }

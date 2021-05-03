@@ -32,10 +32,11 @@ func NewArrayFilter(f []string, fileName string) Filter {
 		d := json.NewDecoder(strings.NewReader(key))
 		d.UseNumber()
 		err := d.Decode(&value)
-		if err != nil {
+		loadedValue := fmt.Sprint(value)
+		if err != nil || loadedValue != key {
 			values[key] = true
 		} else {
-			values[fmt.Sprint(value)] = true
+			values[loadedValue] = true
 		}
 	}
 

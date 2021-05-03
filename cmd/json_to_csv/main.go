@@ -134,6 +134,36 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:  "filter",
+				Usage: "only filters the original file and does not convert to csv",
+				Action: func(c *cli.Context) error {
+					filterCreator := json_to_csv.NewArrayFilter
+					if c.Bool("regex-filter") {
+						filterCreator = json_to_csv.NewRegexFilter
+					}
+
+					filter := filterCreator(SliceString(c.String("filter")), c.String("filter-file"))
+
+					input, err := inputStream(c.Args().Get(0))
+					if err != nil {
+						return err
+					}
+
+					output, err := outputStream(c.String("output"), c.Bool("stdout"))
+					if err != nil {
+						return err
+					}
+
+					writer := json_to_csv.NewLimitWriter(output, c.Int("limit"))
+					err = json_to_csv.FilterProcess(input, writer, filter)
+					writer.Flush()
+					if err != nil && err.Error() != "maximum number of rows reached" {
+						return err
+					}
+					return nil
+				},
+			},
 		},
 		Action: func(c *cli.Context) error {
 			keys, err := json_to_csv.LoadKeys(SliceString(c.String("keys")), c.String("key-file"))
