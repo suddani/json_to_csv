@@ -12,7 +12,6 @@ type regexFilter struct {
 
 func (filter *regexFilter) Check(data map[string]interface{}) bool {
 	value := data[filter.key]
-	fmt.Printf("%v => %v\n", filter.key, value)
 	for _, regex := range filter.values {
 		if regex.MatchString(fmt.Sprint(value)) {
 			return true
