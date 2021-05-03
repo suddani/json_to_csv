@@ -56,7 +56,7 @@ func main() {
 		Name:                 "json_to_csv",
 		Description:          "Convert a stream of json objects to csv\nIf no file is given stdin is used",
 		EnableBashCompletion: true,
-		Version:              "v0.0.1",
+		Version:              "v0.0.2",
 		Usage:                "Converts a file containing json objects to a csv",
 		UsageText:            "json_to_csv [global options] [command] FILE",
 		Flags: []cli.Flag{
@@ -75,6 +75,11 @@ func main() {
 				Name:  "no-header",
 				Value: false,
 				Usage: "Print no header line",
+			},
+			&cli.BoolFlag{
+				Name:  "regex-filter",
+				Value: false,
+				Usage: "Treat filter as regex",
 			},
 			&cli.IntFlag{
 				Name:    "limit",
@@ -136,7 +141,12 @@ func main() {
 				return err
 			}
 
-			filter := json_to_csv.NewArrayFilter(SliceString(c.String("filter")), c.String("filter-file"))
+			filterCreator := json_to_csv.NewArrayFilter
+			if c.Bool("regex-filter") {
+				filterCreator = json_to_csv.NewRegexFilter
+			}
+
+			filter := filterCreator(SliceString(c.String("filter")), c.String("filter-file"))
 
 			input, err := inputStream(c.Args().Get(0))
 			if err != nil {

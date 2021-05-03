@@ -25,7 +25,7 @@ USAGE:
    json_to_csv [global options] [command] FILE
 
 VERSION:
-   v1.0.0
+   v0.0.2
 
 DESCRIPTION:
    Convert a stream of json objects to csv
@@ -43,6 +43,7 @@ GLOBAL OPTIONS:
    --limit LIMIT, -l LIMIT     Print only LIMIT number of rows (default: 0)
    --no-header                 Print no header line (default: false)
    --output FILE, -o FILE      Sets the output FILE (default: "-")
+   --regex-filter              Treat filter as regex (default: false)
    --stdout                    Print to stdout as well as to output (default: false)
    --help, -h                  show help (default: false)
    --version, -v               print the version (default: false)
