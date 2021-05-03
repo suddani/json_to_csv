@@ -25,13 +25,14 @@ USAGE:
    json_to_csv [global options] [command] FILE
 
 VERSION:
-   v0.0.3
+   v0.0.4
 
 DESCRIPTION:
    Convert a stream of json objects to csv
    If no file is given stdin is used
 
 COMMANDS:
+   filter     only filters the original file and does not convert to csv
    keys-only  only print keys
    help, h    Shows a list of commands or help for one command
 
