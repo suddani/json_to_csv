@@ -52,19 +52,70 @@ GLOBAL OPTIONS:
 
 ## Example
 
-Simle conversion
+### Simle conversion
 
-```
-$: printf "{\"name\":\"user\",\"id\":1}\n{\"name\":\"other\",\"id\":2}" | json_to_csv
-id,name
-1,user
-2,other
+```bash
+printf "{\"name\":\"user\",\"id\":1}\n{\"name\":\"other\",\"id\":2}" | json_to_csv
 ```
 
-Count values
+### Keys only
 
+```bash
+printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"de\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv keys-only
 ```
-$: printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"de\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv -k country --no-header|sort|uniq -c
-      2 de
-      1 us
+
+### Filter json without conversion
+
+```bash
+printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"de\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv -f country,us filter
+```
+
+### Filter with conversion
+
+```bash
+printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"it\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv -f country,us.it
+```
+
+### Filter with conversion from filter file
+
+```bash
+printf "country\nus\nit" > simple_filter && \
+printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"it\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv --filter-file simple_filter
+```
+
+### Only print certain keys
+
+```bash
+printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"de\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv -k id,name
+```
+
+### Only print certain keys from file
+
+```bash
+printf "id\nname" > simple_keys && \
+printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"de\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv --key-file simple_keys
+```
+
+### Skip header line
+
+```bash
+printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"de\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv -f country,us --no-header
+```
+
+### Limit output
+
+```bash
+printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"de\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv -l 1
+```
+
+### Output to a file
+
+```bash
+printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"de\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv -l 1 -o somefile.csv
+```
+
+### Count values
+
+```bash
+printf "{\"name\":\"user\",\"id\":1,\"country\":\"us\"}\n{\"name\":\"other\",\"id\":2,\"country\":\"de\"}\n{\"name\":\"other2\",\"id\":3,\"country\":\"de\"}" | json_to_csv -k country --no-header|sort|uniq -c
 ```
