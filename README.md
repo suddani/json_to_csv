@@ -25,7 +25,7 @@ USAGE:
    json_to_csv [global options] [command] FILE
 
 VERSION:
-   v0.0.2
+   v0.0.3
 
 DESCRIPTION:
    Convert a stream of json objects to csv
