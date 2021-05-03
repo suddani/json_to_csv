@@ -28,7 +28,7 @@ func FilterProcess(input io.Reader, output StringWriter, filter Filter) error {
 			continue
 		}
 
-		_, err = output.WriteString(scanner.Text())
+		_, err = output.WriteString(scanner.Text() + "\n")
 		if err != nil {
 			return err
 		}
