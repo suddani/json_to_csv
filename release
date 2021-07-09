@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+GOOS=linux GOARCH=amd64 go build -o build/convert_to_csv cmd/json_to_csv/main.go
+GOOS=windows GOARCH=amd64 go build -o build/convert_to_csv.exe cmd/json_to_csv/main.go
