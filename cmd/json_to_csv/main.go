@@ -109,11 +109,16 @@ func main() {
 				Value: "",
 				Usage: "Load filter from a `FILE`, per line instead of commad seperated",
 			},
+			&cli.StringFlag{
+				Name:  "format",
+				Value: "json2csv",
+				Usage: "Set the output `FORMAT` either: ['json2csv', ''csv2json']",
+			},
 		},
 		Commands: []*cli.Command{
 			{
 				Name:  "keys-only",
-				Usage: "only print keys",
+				Usage: "only print keys (does not support reading csv files)",
 				Action: func(c *cli.Context) error {
 					input, err := inputStream(c.Args().Get(0))
 					if err != nil {
@@ -136,7 +141,7 @@ func main() {
 			},
 			{
 				Name:  "filter",
-				Usage: "only filters the original file and does not convert to csv",
+				Usage: "only filters the original file and does not convert to csv (does not support reading csv files)",
 				Action: func(c *cli.Context) error {
 					filterCreator := json_to_csv.NewArrayFilter
 					if c.Bool("regex-filter") {
@@ -188,9 +193,15 @@ func main() {
 				return err
 			}
 
-			writer := json_to_csv.NewLimitCsvWriter(output, c.Int("limit"), !c.Bool("no-header"))
-			err = json_to_csv.ConvertToCsv(input, writer, keys, filter, !c.Bool("no-header"))
-			writer.Flush()
+			if c.String("format") == "json2csv" {
+				writer := json_to_csv.NewLimitCsvWriter(output, c.Int("limit"), !c.Bool("no-header"))
+				err = json_to_csv.ConvertToCsv(input, writer, keys, filter, !c.Bool("no-header"))
+				writer.Flush()
+			} else if c.String("format") == "csv2json" {
+				writer := json_to_csv.NewJsonWriter(output, c.Int("limit"))
+				err = json_to_csv.ConvertToJson(input, writer, keys, filter)
+				writer.Flush()
+			}
 			if err != nil && err.Error() != "maximum number of rows reached" {
 				return err
 			}
