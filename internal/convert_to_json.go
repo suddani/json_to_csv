@@ -4,7 +4,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"io"
-	"strings"
 )
 
 func ConvertToJson(input io.Reader, output SimpleJsonWriter, keys []string, filter Filter) error {
@@ -34,9 +33,7 @@ func ConvertToJson(input io.Reader, output SimpleJsonWriter, keys []string, filt
 			if keys == nil || keyMap[name] {
 
 				var entry interface{}
-				d := json.NewDecoder(strings.NewReader(record[index]))
-				d.UseNumber()
-				err := d.Decode(&entry)
+				err := json.Unmarshal([]byte(record[index]), &entry)
 				if err != nil {
 					data[name] = record[index]
 				} else {
