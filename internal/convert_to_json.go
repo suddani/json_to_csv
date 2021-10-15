@@ -2,7 +2,9 @@ package json_to_csv
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"io"
+	"strings"
 )
 
 func ConvertToJson(input io.Reader, output SimpleJsonWriter, keys []string, filter Filter) error {
@@ -30,7 +32,16 @@ func ConvertToJson(input io.Reader, output SimpleJsonWriter, keys []string, filt
 		data := map[string]interface{}{}
 		for index, name := range header {
 			if keys == nil || keyMap[name] {
-				data[name] = record[index]
+
+				var entry interface{}
+				d := json.NewDecoder(strings.NewReader(record[index]))
+				d.UseNumber()
+				err := d.Decode(&entry)
+				if err != nil {
+					data[name] = record[index]
+				} else {
+					data[name] = entry
+				}
 			}
 		}
 
