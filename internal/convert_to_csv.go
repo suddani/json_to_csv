@@ -10,7 +10,25 @@ import (
 	"strings"
 )
 
-func ConvertToCsv(input io.Reader, output SimpleCsvWriter, keys []string, filter Filter, header bool) error {
+func digMap(data map[string]interface{}, key string) (string, error) {
+	var output interface{}
+	value := data
+	keys := strings.Split(key, ".")
+	for _, part := range keys {
+		if value == nil {
+			return "", fmt.Errorf("Could not find key")
+		}
+		output = value[part]
+		switch output.(type) {
+		case map[string]interface{}:
+			value = output.(map[string]interface{})
+		default:
+			value = nil
+		}
+	}
+	return fmt.Sprint(output), nil
+}
+func ConvertToCsv(input io.Reader, output SimpleCsvWriter, keys []string, filter Filter, header bool, bufferLimit BufferLimit) error {
 	if header && keys != nil {
 		err := output.Write(keys)
 		if err != nil {
@@ -18,6 +36,10 @@ func ConvertToCsv(input io.Reader, output SimpleCsvWriter, keys []string, filter
 		}
 	}
 	scanner := bufio.NewScanner(input)
+	if bufferLimit.Valid {
+		initialScanBuffer := make([]byte, 0, bufferLimit.Default)
+		scanner.Buffer(initialScanBuffer, bufferLimit.Max)
+	}
 	for scanner.Scan() {
 		data := map[string]interface{}{}
 
@@ -47,7 +69,12 @@ func ConvertToCsv(input io.Reader, output SimpleCsvWriter, keys []string, filter
 
 		values := []string{}
 		for _, key := range keys {
-			values = append(values, fmt.Sprint(data[key]))
+			value, err := digMap(data, key)
+			if err != nil {
+				values = append(values, "")
+			} else {
+				values = append(values, value)
+			}
 		}
 
 		err = output.Write(values)

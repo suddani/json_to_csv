@@ -56,7 +56,7 @@ func main() {
 		Name:                 "json_to_csv",
 		Description:          "Convert a stream of json objects to csv\nIf no file is given stdin is used",
 		EnableBashCompletion: true,
-		Version:              "v0.1.2",
+		Version:              "v0.1.3",
 		Usage:                "Converts a file containing json objects to a csv",
 		UsageText:            "json_to_csv [global options] [command] FILE",
 		Flags: []cli.Flag{
@@ -86,6 +86,18 @@ func main() {
 				Aliases: []string{"l"},
 				Value:   0,
 				Usage:   "Print only `LIMIT` number of rows",
+			},
+			&cli.IntFlag{
+				Name:    "buffer",
+				Aliases: []string{"b"},
+				Value:   0,
+				Usage:   "Change the default buffer size for each line. Default size is 65536 calculated from 64*1024",
+			},
+			&cli.IntFlag{
+				Name:    "maxbuffer",
+				Aliases: []string{"mb"},
+				Value:   0,
+				Usage:   "Change the default max buffer size for each line. A good size might be one megabyte 1048576 calculated from 1024*1024",
 			},
 			&cli.StringFlag{
 				Name:    "keys",
@@ -131,7 +143,7 @@ func main() {
 					}
 
 					writer := json_to_csv.NewLimitCsvWriter(output, c.Int("limit"), false)
-					err = json_to_csv.FindAllKeys(input, writer)
+					err = json_to_csv.FindAllKeys(input, writer, json_to_csv.NewBufferLimit(c.Int("buffer"), c.Int("maxbuffer")))
 					writer.Flush()
 					if err != nil && err.Error() != "maximum number of rows reached" {
 						return err
@@ -161,7 +173,7 @@ func main() {
 					}
 
 					writer := json_to_csv.NewLimitWriter(output, c.Int("limit"))
-					err = json_to_csv.FilterProcess(input, writer, filter)
+					err = json_to_csv.FilterProcess(input, writer, filter, json_to_csv.NewBufferLimit(c.Int("buffer"), c.Int("maxbuffer")))
 					writer.Flush()
 					if err != nil && err.Error() != "maximum number of rows reached" {
 						return err
@@ -195,7 +207,7 @@ func main() {
 
 			if c.String("format") == "json2csv" {
 				writer := json_to_csv.NewLimitCsvWriter(output, c.Int("limit"), !c.Bool("no-header"))
-				err = json_to_csv.ConvertToCsv(input, writer, keys, filter, !c.Bool("no-header"))
+				err = json_to_csv.ConvertToCsv(input, writer, keys, filter, !c.Bool("no-header"), json_to_csv.NewBufferLimit(c.Int("buffer"), c.Int("maxbuffer")))
 				writer.Flush()
 			} else if c.String("format") == "csv2json" {
 				writer := json_to_csv.NewJsonWriter(output, c.Int("limit"))

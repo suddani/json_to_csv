@@ -12,8 +12,12 @@ type Filter interface {
 	Check(map[string]interface{}) bool
 }
 
-func FilterProcess(input io.Reader, output StringWriter, filter Filter) error {
+func FilterProcess(input io.Reader, output StringWriter, filter Filter, bufferLimit BufferLimit) error {
 	scanner := bufio.NewScanner(input)
+	if bufferLimit.Valid {
+		initialScanBuffer := make([]byte, 0, bufferLimit.Default)
+		scanner.Buffer(initialScanBuffer, bufferLimit.Max)
+	}
 	for scanner.Scan() {
 		data := map[string]interface{}{}
 
