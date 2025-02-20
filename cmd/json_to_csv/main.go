@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"sort"
-	"strings"
 
 	json_to_csv "github.com/suddani/json_to_csv/internal"
 	"github.com/urfave/cli/v2"
@@ -38,25 +37,12 @@ func inputStream(inputFile string) (io.Reader, error) {
 	return reader, nil
 }
 
-func SliceString(s string) []string {
-	if s == "" {
-		return nil
-	}
-
-	array := strings.Split(s, ",")
-	if len(array) == 0 {
-		return nil
-	}
-
-	return array
-}
-
 func main() {
 	app := &cli.App{
 		Name:                 "json_to_csv",
 		Description:          "Convert a stream of json objects to csv\nIf no file is given stdin is used",
 		EnableBashCompletion: true,
-		Version:              "v0.1.3",
+		Version:              "v0.1.4-beta",
 		Usage:                "Converts a file containing json objects to a csv",
 		UsageText:            "json_to_csv [global options] [command] FILE",
 		Flags: []cli.Flag{
@@ -126,6 +112,12 @@ func main() {
 				Value: "json2csv",
 				Usage: "Set the output `FORMAT` either: ['json2csv', ''csv2json']",
 			},
+			&cli.StringFlag{
+				Name:    "default-value",
+				Aliases: []string{"d"},
+				Value:   "",
+				Usage:   "Set the default `DEFAULT` value for missing keys: Comma seperated list: name:unknown,age:0",
+			},
 		},
 		Commands: []*cli.Command{
 			{
@@ -160,7 +152,7 @@ func main() {
 						filterCreator = json_to_csv.NewRegexFilter
 					}
 
-					filter := filterCreator(SliceString(c.String("filter")), c.String("filter-file"))
+					filter := filterCreator(json_to_csv.SliceString(c.String("filter")), c.String("filter-file"))
 
 					input, err := inputStream(c.Args().Get(0))
 					if err != nil {
@@ -183,7 +175,7 @@ func main() {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			keys, err := json_to_csv.LoadKeys(SliceString(c.String("keys")), c.String("key-file"))
+			keys, err := json_to_csv.LoadKeys(json_to_csv.SliceString(c.String("keys")), c.String("key-file"))
 			if err != nil {
 				return err
 			}
@@ -193,7 +185,8 @@ func main() {
 				filterCreator = json_to_csv.NewRegexFilter
 			}
 
-			filter := filterCreator(SliceString(c.String("filter")), c.String("filter-file"))
+			filter := filterCreator(json_to_csv.SliceString(c.String("filter")), c.String("filter-file"))
+			defaultValues := json_to_csv.NewDefaultValue(json_to_csv.SliceString(c.String("default-value")))
 
 			input, err := inputStream(c.Args().Get(0))
 			if err != nil {
@@ -207,11 +200,11 @@ func main() {
 
 			if c.String("format") == "json2csv" {
 				writer := json_to_csv.NewLimitCsvWriter(output, c.Int("limit"), !c.Bool("no-header"))
-				err = json_to_csv.ConvertToCsv(input, writer, keys, filter, !c.Bool("no-header"), json_to_csv.NewBufferLimit(c.Int("buffer"), c.Int("maxbuffer")))
+				err = json_to_csv.ConvertToCsv(input, writer, keys, filter, defaultValues, !c.Bool("no-header"), json_to_csv.NewBufferLimit(c.Int("buffer"), c.Int("maxbuffer")))
 				writer.Flush()
 			} else if c.String("format") == "csv2json" {
 				writer := json_to_csv.NewJsonWriter(output, c.Int("limit"))
-				err = json_to_csv.ConvertToJson(input, writer, keys, filter)
+				err = json_to_csv.ConvertToJson(input, writer, keys, filter, defaultValues)
 				writer.Flush()
 			}
 			if err != nil && err.Error() != "maximum number of rows reached" {

@@ -28,7 +28,7 @@ func digMap(data map[string]interface{}, key string) (string, error) {
 	}
 	return fmt.Sprint(output), nil
 }
-func ConvertToCsv(input io.Reader, output SimpleCsvWriter, keys []string, filter Filter, header bool, bufferLimit BufferLimit) error {
+func ConvertToCsv(input io.Reader, output SimpleCsvWriter, keys []string, filter Filter, defaults DefaultValue, header bool, bufferLimit BufferLimit) error {
 	if header && keys != nil {
 		err := output.Write(keys)
 		if err != nil {
@@ -71,9 +71,9 @@ func ConvertToCsv(input io.Reader, output SimpleCsvWriter, keys []string, filter
 		for _, key := range keys {
 			value, err := digMap(data, key)
 			if err != nil {
-				values = append(values, "")
+				values = append(values, defaults.DefaultString(key, ""))
 			} else {
-				values = append(values, value)
+				values = append(values, defaults.DefaultString(key, value))
 			}
 		}
 

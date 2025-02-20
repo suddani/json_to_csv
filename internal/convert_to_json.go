@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func ConvertToJson(input io.Reader, output SimpleJsonWriter, keys []string, filter Filter) error {
+func ConvertToJson(input io.Reader, output SimpleJsonWriter, keys []string, filter Filter, defaults DefaultValue) error {
 	keyMap := map[string]bool{}
 	if keys != nil {
 		for _, key := range keys {
@@ -35,9 +35,9 @@ func ConvertToJson(input io.Reader, output SimpleJsonWriter, keys []string, filt
 				var entry interface{}
 				err := json.Unmarshal([]byte(record[index]), &entry)
 				if err != nil {
-					data[name] = record[index]
+					data[name] = defaults.DefaultInterface(name, record[index])
 				} else {
-					data[name] = entry
+					data[name] = defaults.DefaultInterface(name, entry)
 				}
 			}
 		}
