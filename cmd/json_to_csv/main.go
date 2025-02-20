@@ -42,7 +42,7 @@ func main() {
 		Name:                 "json_to_csv",
 		Description:          "Convert a stream of json objects to csv\nIf no file is given stdin is used",
 		EnableBashCompletion: true,
-		Version:              "v0.1.4-beta",
+		Version:              "v0.1.4",
 		Usage:                "Converts a file containing json objects to a csv",
 		UsageText:            "json_to_csv [global options] [command] FILE",
 		Flags: []cli.Flag{
