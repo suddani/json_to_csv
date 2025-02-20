@@ -25,7 +25,7 @@ type mapDefaults struct {
 
 func (d *mapDefaults) DefaultInterface(key string, value interface{}) interface{} {
 	val, ok := d.values[key]
-	if ok && (value == nil || reflect.ValueOf(value).IsNil()) {
+	if ok && (value == nil || (reflect.TypeOf(value).String() == "string" && reflect.ValueOf(value).String() == "")) {
 		return val
 	}
 
