@@ -116,7 +116,7 @@ func main() {
 				Name:    "default-value",
 				Aliases: []string{"d"},
 				Value:   "",
-				Usage:   "Set the default `DEFAULT` value for missing keys: Comma seperated list: name:unknown,age:0",
+				Usage:   "Set the default `DEFAULT` value for empty keys. Works for missing keys only when parsing json: Comma seperated list: name:unknown,age:0",
 			},
 		},
 		Commands: []*cli.Command{
