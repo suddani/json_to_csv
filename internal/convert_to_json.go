@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-func ConvertToJson(input io.Reader, output SimpleJsonWriter, keys []string, filter Filter, defaults DefaultValue) error {
+func ConvertToJson(input io.Reader, output SimpleJsonWriter, keys []string, filter Filter, defaults DefaultValue, columnSeperator string) error {
 	keyMap := map[string]bool{}
 	if keys != nil {
 		for _, key := range keys {
@@ -14,6 +14,7 @@ func ConvertToJson(input io.Reader, output SimpleJsonWriter, keys []string, filt
 		}
 	}
 	reader := csv.NewReader(input)
+	reader.Comma = []rune(columnSeperator)[0]
 	header := []string{}
 	for {
 		record, err := reader.Read()
